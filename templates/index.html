@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>사진 업로드</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .left, .right {
+      width: 50%;
+      box-sizing: border-box;
+      padding: 40px;
+    }
+
+    .left {
+      background-color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drop-area {
+      border: 3px dashed #aaa;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      height: 300px;
+      background-color: #fff;
+      color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .drop-area.hover {
+      background-color: #e6f7ff;
+      border-color: #1890ff;
+      color: #1890ff;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 왼쪽: 드래그 앤 드롭 업로드 박스 -->
+  <div class="left">
+    <div class="drop-area" id="dropArea">
+      <p>📤 사진을 드래그하거나 클릭하세요</p>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+  </div>
+
+  <!-- 오른쪽: 비어있음 -->
+  <div class="right">
+    <!-- 여기엔 아직 아무것도 없음 -->
+  </div>
+</div>
+
+<script>
+  const dropArea = document.getElementById('dropArea');
+  const fileInput = document.getElementById('fileInput');
+
+  dropArea.addEventListener('click', () => fileInput.click());
+
+  dropArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropArea.classList.add('hover');
+  });
+
+  dropArea.addEventListener('dragleave', e => {
+    e.preventDefault();
+    dropArea.classList.remove('hover');
+  });
+
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault();
+    dropArea.classList.remove('hover');
+    handleFileUpload(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener('change', () => {
+    handleFileUpload(fileInput.files[0]);
+  });
+
+  function handleFileUpload(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/upload', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('응답 받은 데이터:', data);
+      if (data.success) {
+        dropArea.innerHTML = `<img src="${data.url}" alt="Uploaded" style="max-width:100%; max-height:100%; border-radius: 10px;">`;
+      } else {
+        alert("업로드 실패: " + data.error);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
