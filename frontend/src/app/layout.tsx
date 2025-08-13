@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-
+// 모든 페이지의 공통 레이아웃을 정의하는 파일
 export const metadata: Metadata = {
   title: '사진 업로드',
   description: '사진 업로드 앱',
